@@ -52,53 +52,53 @@ static volatile FuriHalPower furi_hal_power = {
 extern const BQ27220DMData furi_hal_power_gauge_data_memory[];
 
 void furi_hal_power_init(void) {
-#ifdef FURI_HAL_POWER_DEBUG
-    furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_WFI_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_STOP_GPIO, GpioModeOutputPushPull);
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
-#endif
+    // #ifdef FURI_HAL_POWER_DEBUG
+    //     furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_WFI_GPIO, GpioModeOutputPushPull);
+    //     furi_hal_gpio_init_simple(FURI_HAL_POWER_DEBUG_STOP_GPIO, GpioModeOutputPushPull);
+    //     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
+    //     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
+    // #endif
 
-    LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
-    LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
+    //     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
+    //     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
 
-    LL_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
-    LL_C2_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
+    //     LL_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
+    //     LL_C2_PWR_SetPowerMode(FURI_HAL_POWER_STOP_MODE);
 
-#if FURI_HAL_POWER_STOP_MODE == LL_PWR_MODE_STOP0
-    LL_RCC_HSI_EnableInStopMode(); // Ensure that MR is capable of work in STOP0
-#endif
+    // #if FURI_HAL_POWER_STOP_MODE == LL_PWR_MODE_STOP0
+    //     LL_RCC_HSI_EnableInStopMode(); // Ensure that MR is capable of work in STOP0
+    // #endif
 
-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-    // Find and init gauge
-    size_t retry = 2;
-    while(retry > 0) {
-        furi_hal_power.gauge_ok =
-            bq27220_init(&furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
-        if(furi_hal_power.gauge_ok) {
-            break;
-        } else {
-            // Gauge need some time to think about it's behavior
-            // We must wait, otherwise next init cycle will fail at unseal stage
-            furi_delay_us(4000000);
-        }
-        retry--;
-    }
-    // Find and init charger
-    retry = 2;
-    while(retry > 0) {
-        furi_hal_power.charger_ok = bq25896_init(&furi_hal_i2c_handle_power);
-        if(furi_hal_power.charger_ok) {
-            break;
-        } else {
-            // Most likely I2C communication error
-            // 2 seconds should be enough for all chips on the line to timeout
-            // Also timing out here is very abnormal
-            furi_delay_us(2020202);
-        }
-        retry--;
-    }
-    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    //     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    //     // Find and init gauge
+    //     size_t retry = 2;
+    //     while(retry > 0) {
+    //         furi_hal_power.gauge_ok =
+    //             bq27220_init(&furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
+    //         if(furi_hal_power.gauge_ok) {
+    //             break;
+    //         } else {
+    //             // Gauge need some time to think about it's behavior
+    //             // We must wait, otherwise next init cycle will fail at unseal stage
+    //             furi_delay_us(4000000);
+    //         }
+    //         retry--;
+    //     }
+    //     // Find and init charger
+    //     retry = 2;
+    //     while(retry > 0) {
+    //         furi_hal_power.charger_ok = bq25896_init(&furi_hal_i2c_handle_power);
+    //         if(furi_hal_power.charger_ok) {
+    //             break;
+    //         } else {
+    //             // Most likely I2C communication error
+    //             // 2 seconds should be enough for all chips on the line to timeout
+    //             // Also timing out here is very abnormal
+    //             furi_delay_us(2020202);
+    //         }
+    //         retry--;
+    //     }
+    //     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
     FURI_LOG_I(TAG, "Init OK");
 }
@@ -106,39 +106,40 @@ void furi_hal_power_init(void) {
 bool furi_hal_power_gauge_is_ok(void) {
     bool ret = true;
 
-    Bq27220BatteryStatus battery_status;
-    Bq27220OperationStatus operation_status;
+    // Bq27220BatteryStatus battery_status;
+    // Bq27220OperationStatus operation_status;
 
-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    // furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 
-    if(!bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) ||
-       !bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status)) {
-        ret = false;
-    } else {
-        ret &= battery_status.BATTPRES;
-        ret &= operation_status.INITCOMP;
-        ret &= furi_hal_power.gauge_ok;
-    }
+    // if(!bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) ||
+    //    !bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status)) {
+    //     ret = false;
+    // } else {
+    //     ret &= battery_status.BATTPRES;
+    //     ret &= operation_status.INITCOMP;
+    //     ret &= furi_hal_power.gauge_ok;
+    // }
 
-    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    // furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
     return ret;
 }
 
 bool furi_hal_power_is_shutdown_requested(void) {
-    bool ret = false;
+    // bool ret = false;
 
-    Bq27220BatteryStatus battery_status;
+    // Bq27220BatteryStatus battery_status;
 
-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    // furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 
-    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) != BQ27220_ERROR) {
-        ret = battery_status.SYSDWN;
-    }
+    // if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) != BQ27220_ERROR) {
+    //     ret = battery_status.SYSDWN;
+    // }
 
-    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    // furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
-    return ret;
+    // return ret;
+    return true;
 }
 
 uint16_t furi_hal_power_insomnia_level(void) {
@@ -189,79 +190,79 @@ static inline void furi_hal_power_resume_aux_periphs(void) {
 }
 
 static inline void furi_hal_power_deep_sleep(void) {
-    furi_hal_power_suspend_aux_periphs();
+    //     furi_hal_power_suspend_aux_periphs();
 
-    if(!furi_hal_clock_switch_pll2hse()) {
-        // Hello core2 my old friend
-        return;
-    }
+    //     if(!furi_hal_clock_switch_pll2hse()) {
+    //         // Hello core2 my old friend
+    //         return;
+    //     }
 
-    while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
-        ;
+    //     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
+    //         ;
 
-    if(!LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID)) {
-        if(LL_PWR_IsActiveFlag_C2DS() || LL_PWR_IsActiveFlag_C2SB()) {
-            // Release ENTRY_STOP_MODE semaphore
-            LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+    //     if(!LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID)) {
+    //         if(LL_PWR_IsActiveFlag_C2DS() || LL_PWR_IsActiveFlag_C2SB()) {
+    //             // Release ENTRY_STOP_MODE semaphore
+    //             LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
 
-            // The switch on HSI before entering Stop Mode is required
-            furi_hal_clock_switch_hse2hsi();
-        }
-    } else {
-        /**
-         * The switch on HSI before entering Stop Mode is required 
-         */
-        furi_hal_clock_switch_hse2hsi();
-    }
+    //             // The switch on HSI before entering Stop Mode is required
+    //             furi_hal_clock_switch_hse2hsi();
+    //         }
+    //     } else {
+    //         /**
+    //          * The switch on HSI before entering Stop Mode is required
+    //          */
+    //         furi_hal_clock_switch_hse2hsi();
+    //     }
 
-    /* Release RCC semaphore */
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
+    //     /* Release RCC semaphore */
+    //     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 
-    // Prepare deep sleep
-    LL_LPM_EnableDeepSleep();
+    //     // Prepare deep sleep
+    //     LL_LPM_EnableDeepSleep();
 
-#if defined(__CC_ARM)
-    // Force store operations
-    __force_stores();
-#endif
+    // #if defined(__CC_ARM)
+    //     // Force store operations
+    //     __force_stores();
+    // #endif
 
-#ifdef FURI_HAL_POWER_DEBUG
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 1);
-#endif
-    __WFI();
-#ifdef FURI_HAL_POWER_DEBUG
-    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
-#endif
+    // #ifdef FURI_HAL_POWER_DEBUG
+    //     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 1);
+    // #endif
+    //     __WFI();
+    // #ifdef FURI_HAL_POWER_DEBUG
+    //     furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
+    // #endif
 
-    LL_LPM_EnableSleep();
+    //     LL_LPM_EnableSleep();
 
-    /* Release ENTRY_STOP_MODE semaphore */
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+    //     /* Release ENTRY_STOP_MODE semaphore */
+    //     LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
 
-    while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
-        ;
+    //     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
+    //         ;
 
-    if(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSI) {
-        furi_hal_clock_switch_hsi2hse();
-    } else {
-        // Ensure that we are already on HSE
-        furi_check(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
-    }
+    //     if(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSI) {
+    //         furi_hal_clock_switch_hsi2hse();
+    //     } else {
+    //         // Ensure that we are already on HSE
+    //         furi_check(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
+    //     }
 
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
+    //     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 
-    furi_check(furi_hal_clock_switch_hse2pll());
+    //     furi_check(furi_hal_clock_switch_hse2pll());
 
-    furi_hal_power_resume_aux_periphs();
-    furi_hal_rtc_sync_shadow();
+    //     furi_hal_power_resume_aux_periphs();
+    //     furi_hal_rtc_sync_shadow();
 }
 
 void furi_hal_power_sleep(void) {
-    if(furi_hal_power_deep_sleep_available()) {
-        furi_hal_power_deep_sleep();
-    } else {
-        furi_hal_power_light_sleep();
-    }
+    // if(furi_hal_power_deep_sleep_available()) {
+    //     furi_hal_power_deep_sleep();
+    // } else {
+    //     furi_hal_power_light_sleep();
+    // }
 }
 
 uint8_t furi_hal_power_get_pct(void) {
@@ -293,48 +294,48 @@ bool furi_hal_power_is_charging_done(void) {
 }
 
 void furi_hal_power_shutdown(void) {
-    furi_hal_power_insomnia_enter();
+    // furi_hal_power_insomnia_enter();
 
-    furi_hal_bt_reinit();
+    // furi_hal_bt_reinit();
 
-    while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
-        ;
+    // while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID))
+    //     ;
 
-    if(!LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID)) {
-        if(LL_PWR_IsActiveFlag_C2DS() || LL_PWR_IsActiveFlag_C2SB()) {
-            // Release ENTRY_STOP_MODE semaphore
-            LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
-        }
-    }
+    // if(!LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID)) {
+    //     if(LL_PWR_IsActiveFlag_C2DS() || LL_PWR_IsActiveFlag_C2SB()) {
+    //         // Release ENTRY_STOP_MODE semaphore
+    //         LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+    //     }
+    // }
 
-    // Prepare Wakeup pin
-    LL_PWR_SetWakeUpPinPolarityLow(LL_PWR_WAKEUP_PIN2);
-    LL_PWR_EnableWakeUpPin(LL_PWR_WAKEUP_PIN2);
-    LL_C2_PWR_EnableWakeUpPin(LL_PWR_WAKEUP_PIN2);
+    // // Prepare Wakeup pin
+    // LL_PWR_SetWakeUpPinPolarityLow(LL_PWR_WAKEUP_PIN2);
+    // LL_PWR_EnableWakeUpPin(LL_PWR_WAKEUP_PIN2);
+    // LL_C2_PWR_EnableWakeUpPin(LL_PWR_WAKEUP_PIN2);
 
-    /* Release RCC semaphore */
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
+    // /* Release RCC semaphore */
+    // LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 
-    LL_PWR_DisableBootC2();
-    LL_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-    LL_LPM_EnableDeepSleep();
+    // LL_PWR_DisableBootC2();
+    // LL_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+    // LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+    // LL_LPM_EnableDeepSleep();
 
-    __WFI();
-    furi_crash("Insomniac core2");
+    // __WFI();
+    // furi_crash("Insomniac core2");
 }
 
 void furi_hal_power_off(void) {
-    // Crutch: shutting down with ext 3V3 off is causing LSE to stop
-    furi_hal_rtc_prepare_for_shutdown();
-    furi_hal_power_enable_external_3_3v();
-    furi_hal_vibro_on(true);
-    furi_delay_us(50000);
-    // Send poweroff to charger
-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-    bq25896_poweroff(&furi_hal_i2c_handle_power);
-    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
-    furi_hal_vibro_on(false);
+    // // Crutch: shutting down with ext 3V3 off is causing LSE to stop
+    // furi_hal_rtc_prepare_for_shutdown();
+    // furi_hal_power_enable_external_3_3v();
+    // furi_hal_vibro_on(true);
+    // furi_delay_us(50000);
+    // // Send poweroff to charger
+    // furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    // bq25896_poweroff(&furi_hal_i2c_handle_power);
+    // furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    // furi_hal_vibro_on(false);
 }
 
 FURI_NORETURN void furi_hal_power_reset(void) {
@@ -483,29 +484,29 @@ void furi_hal_power_disable_external_3_3v(void) {
 }
 
 void furi_hal_power_suppress_charge_enter(void) {
-    FURI_CRITICAL_ENTER();
-    bool disable_charging = furi_hal_power.suppress_charge == 0;
-    furi_hal_power.suppress_charge++;
-    FURI_CRITICAL_EXIT();
+    // FURI_CRITICAL_ENTER();
+    // bool disable_charging = furi_hal_power.suppress_charge == 0;
+    // furi_hal_power.suppress_charge++;
+    // FURI_CRITICAL_EXIT();
 
-    if(disable_charging) {
-        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-        bq25896_disable_charging(&furi_hal_i2c_handle_power);
-        furi_hal_i2c_release(&furi_hal_i2c_handle_power);
-    }
+    // if(disable_charging) {
+    //     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    //     bq25896_disable_charging(&furi_hal_i2c_handle_power);
+    //     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    // }
 }
 
 void furi_hal_power_suppress_charge_exit(void) {
-    FURI_CRITICAL_ENTER();
-    furi_hal_power.suppress_charge--;
-    bool enable_charging = furi_hal_power.suppress_charge == 0;
-    FURI_CRITICAL_EXIT();
+    // FURI_CRITICAL_ENTER();
+    // furi_hal_power.suppress_charge--;
+    // bool enable_charging = furi_hal_power.suppress_charge == 0;
+    // FURI_CRITICAL_EXIT();
 
-    if(enable_charging) {
-        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-        bq25896_enable_charging(&furi_hal_i2c_handle_power);
-        furi_hal_i2c_release(&furi_hal_i2c_handle_power);
-    }
+    // if(enable_charging) {
+    //     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    //     bq25896_enable_charging(&furi_hal_i2c_handle_power);
+    //     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    // }
 }
 
 void furi_hal_power_info_get(PropertyValueCallback out, char sep, void* context) {

@@ -193,11 +193,12 @@ void furi_hal_rtc_init_early(void) {
         furi_hal_rtc_reset_registers();
     }
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        furi_hal_debug_enable();
-    } else {
-        furi_hal_debug_disable();
-    }
+    furi_hal_debug_enable();
+    // if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+    //     furi_hal_debug_enable();
+    // } else {
+    //     furi_hal_debug_disable();
+    // }
 }
 
 void furi_hal_rtc_deinit_early(void) {

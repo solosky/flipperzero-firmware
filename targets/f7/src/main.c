@@ -40,6 +40,9 @@ int main(void) {
     // Delay is for button sampling
     furi_delay_ms(100);
 
+    //for debug
+    furi_delay_ms(5000);
+
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     if(boot_mode == FuriHalRtcBootModeDfu || !furi_hal_gpio_read(&gpio_button_left)) {
         furi_hal_light_sequence("rgb WB");

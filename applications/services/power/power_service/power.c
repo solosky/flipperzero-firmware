@@ -85,88 +85,88 @@ static bool power_update_info(Power* power) {
     return need_refresh;
 }
 
-static void power_check_charging_state(Power* power) {
-    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+// static void power_check_charging_state(Power* power) {
+//     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
 
-    if(furi_hal_power_is_charging()) {
-        if((power->info.charge == 100) || (furi_hal_power_is_charging_done())) {
-            if(power->state != PowerStateCharged) {
-                notification_internal_message(notification, &sequence_charged);
-                power->state = PowerStateCharged;
-                power->event.type = PowerEventTypeFullyCharged;
-                furi_pubsub_publish(power->event_pubsub, &power->event);
-            }
+//     if(furi_hal_power_is_charging()) {
+//         if((power->info.charge == 100) || (furi_hal_power_is_charging_done())) {
+//             if(power->state != PowerStateCharged) {
+//                 notification_internal_message(notification, &sequence_charged);
+//                 power->state = PowerStateCharged;
+//                 power->event.type = PowerEventTypeFullyCharged;
+//                 furi_pubsub_publish(power->event_pubsub, &power->event);
+//             }
 
-        } else if(power->state != PowerStateCharging) {
-            notification_internal_message(notification, &sequence_charging);
-            power->state = PowerStateCharging;
-            power->event.type = PowerEventTypeStartCharging;
-            furi_pubsub_publish(power->event_pubsub, &power->event);
-        }
+//         } else if(power->state != PowerStateCharging) {
+//             notification_internal_message(notification, &sequence_charging);
+//             power->state = PowerStateCharging;
+//             power->event.type = PowerEventTypeStartCharging;
+//             furi_pubsub_publish(power->event_pubsub, &power->event);
+//         }
 
-    } else if(power->state != PowerStateNotCharging) {
-        notification_internal_message(notification, &sequence_not_charging);
-        power->state = PowerStateNotCharging;
-        power->event.type = PowerEventTypeStopCharging;
-        furi_pubsub_publish(power->event_pubsub, &power->event);
-    }
+//     } else if(power->state != PowerStateNotCharging) {
+//         notification_internal_message(notification, &sequence_not_charging);
+//         power->state = PowerStateNotCharging;
+//         power->event.type = PowerEventTypeStopCharging;
+//         furi_pubsub_publish(power->event_pubsub, &power->event);
+//     }
 
-    furi_record_close(RECORD_NOTIFICATION);
-}
+//     furi_record_close(RECORD_NOTIFICATION);
+// }
 
-static void power_check_low_battery(Power* power) {
-    if(!power->info.gauge_is_ok) {
-        return;
-    }
+// static void power_check_low_battery(Power* power) {
+//     if(!power->info.gauge_is_ok) {
+//         return;
+//     }
 
-    // Check battery charge and vbus voltage
-    if((power->info.is_shutdown_requested) &&
-       (power->info.voltage_vbus < POWER_VBUS_LOW_THRESHOLD) && power->show_battery_low_warning) {
-        if(!power->battery_low) {
-            view_holder_send_to_front(power->view_holder);
-            view_holder_set_view(power->view_holder, power_off_get_view(power->view_power_off));
-        }
-        power->battery_low = true;
-    } else {
-        if(power->battery_low) {
-            // view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
-            view_holder_set_view(power->view_holder, NULL);
-            power->power_off_timeout = POWER_OFF_TIMEOUT_S;
-        }
-        power->battery_low = false;
-    }
-    // If battery low, update view and switch off power after timeout
-    if(power->battery_low) {
-        PowerOffResponse response = power_off_get_response(power->view_power_off);
-        if(response == PowerOffResponseDefault) {
-            if(power->power_off_timeout) {
-                power_off_set_time_left(power->view_power_off, power->power_off_timeout--);
-            } else {
-                power_off(power);
-            }
-        } else if(response == PowerOffResponseOk) {
-            power_off(power);
-        } else if(response == PowerOffResponseHide) {
-            view_holder_set_view(power->view_holder, NULL);
-            if(power->power_off_timeout) {
-                power_off_set_time_left(power->view_power_off, power->power_off_timeout--);
-            } else {
-                power_off(power);
-            }
-        } else if(response == PowerOffResponseCancel) {
-            view_holder_set_view(power->view_holder, NULL);
-        }
-    }
-}
+//     // Check battery charge and vbus voltage
+//     if((power->info.is_shutdown_requested) &&
+//        (power->info.voltage_vbus < POWER_VBUS_LOW_THRESHOLD) && power->show_battery_low_warning) {
+//         if(!power->battery_low) {
+//             view_holder_send_to_front(power->view_holder);
+//             view_holder_set_view(power->view_holder, power_off_get_view(power->view_power_off));
+//         }
+//         power->battery_low = true;
+//     } else {
+//         if(power->battery_low) {
+//             // view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
+//             view_holder_set_view(power->view_holder, NULL);
+//             power->power_off_timeout = POWER_OFF_TIMEOUT_S;
+//         }
+//         power->battery_low = false;
+//     }
+//     // If battery low, update view and switch off power after timeout
+//     if(power->battery_low) {
+//         PowerOffResponse response = power_off_get_response(power->view_power_off);
+//         if(response == PowerOffResponseDefault) {
+//             if(power->power_off_timeout) {
+//                 power_off_set_time_left(power->view_power_off, power->power_off_timeout--);
+//             } else {
+//                 power_off(power);
+//             }
+//         } else if(response == PowerOffResponseOk) {
+//             power_off(power);
+//         } else if(response == PowerOffResponseHide) {
+//             view_holder_set_view(power->view_holder, NULL);
+//             if(power->power_off_timeout) {
+//                 power_off_set_time_left(power->view_power_off, power->power_off_timeout--);
+//             } else {
+//                 power_off(power);
+//             }
+//         } else if(response == PowerOffResponseCancel) {
+//             view_holder_set_view(power->view_holder, NULL);
+//         }
+//     }
+// }
 
-static void power_check_battery_level_change(Power* power) {
-    if(power->battery_level != power->info.charge) {
-        power->battery_level = power->info.charge;
-        power->event.type = PowerEventTypeBatteryLevelChanged;
-        power->event.data.battery_level = power->battery_level;
-        furi_pubsub_publish(power->event_pubsub, &power->event);
-    }
-}
+// static void power_check_battery_level_change(Power* power) {
+//     if(power->battery_level != power->info.charge) {
+//         power->battery_level = power->info.charge;
+//         power->event.type = PowerEventTypeBatteryLevelChanged;
+//         power->event.data.battery_level = power->battery_level;
+//         furi_pubsub_publish(power->event_pubsub, &power->event);
+//     }
+// }
 
 static void power_handle_shutdown(Power* power) {
     furi_hal_power_off();
@@ -252,33 +252,33 @@ static void power_message_callback(FuriEventLoopObject* object, void* context) {
 
 static void power_tick_callback(void* context) {
     furi_assert(context);
-    Power* power = context;
+    //Power* power = context;
 
-    // Update data from gauge and charger
-    const bool need_refresh = power_update_info(power);
-    // Check low battery level
-    power_check_low_battery(power);
-    // Check and notify about charging state
-    power_check_charging_state(power);
-    // Check and notify about battery level change
-    power_check_battery_level_change(power);
-    // Update battery view port
-    if(need_refresh) {
-        view_port_update(power->battery_view_port);
-    }
-    // Check OTG status, disable in case of a fault
-    if(furi_hal_power_check_otg_fault()) {
-        FURI_LOG_E(TAG, "OTG fault detected, disabling OTG");
-        furi_hal_power_disable_otg();
-        power->is_otg_requested = false;
-    }
+    // // Update data from gauge and charger
+    // const bool need_refresh = power_update_info(power);
+    // // Check low battery level
+    // power_check_low_battery(power);
+    // // Check and notify about charging state
+    // power_check_charging_state(power);
+    // // Check and notify about battery level change
+    // power_check_battery_level_change(power);
+    // // Update battery view port
+    // if(need_refresh) {
+    //     view_port_update(power->battery_view_port);
+    // }
+    // // Check OTG status, disable in case of a fault
+    // if(furi_hal_power_check_otg_fault()) {
+    //     FURI_LOG_E(TAG, "OTG fault detected, disabling OTG");
+    //     furi_hal_power_disable_otg();
+    //     power->is_otg_requested = false;
+    // }
 
-    // Change OTG state if needed (i.e. after disconnecting USB power)
-    if(power->is_otg_requested &&
-       (!power->info.is_otg_enabled && power->info.voltage_vbus < 4.5f)) {
-        FURI_LOG_D(TAG, "OTG requested but not enabled, enabling OTG");
-        furi_hal_power_enable_otg();
-    }
+    // // Change OTG state if needed (i.e. after disconnecting USB power)
+    // if(power->is_otg_requested &&
+    //    (!power->info.is_otg_enabled && power->info.voltage_vbus < 4.5f)) {
+    //     FURI_LOG_D(TAG, "OTG requested but not enabled, enabling OTG");
+    //     furi_hal_power_enable_otg();
+    // }
 }
 
 static Power* power_alloc(void) {

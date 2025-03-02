@@ -25,7 +25,8 @@ Canvas* canvas_init(void) {
 
     // Setup u8g2
     //u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
-    u8g2_Setup_sh1106_128x64_noname_f(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
+    u8g2_Setup_sh1106_128x64_noname_f(
+        &canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     canvas->orientation = CanvasOrientationHorizontal;
     // Initialize display
     u8g2_InitDisplay(&canvas->fb);
@@ -34,6 +35,8 @@ Canvas* canvas_init(void) {
 
     // Clear buffer and send to device
     canvas_clear(canvas);
+
+    canvas_draw_circle(canvas, 64, 32, 16);
     canvas_commit(canvas);
 
     return canvas;
