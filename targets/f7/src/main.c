@@ -3,6 +3,7 @@
 #include <flipper.h>
 #include <alt_boot.h>
 #include <update_util/update_operation.h>
+#include "rtt.h"
 
 #define TAG "Main"
 
@@ -27,6 +28,9 @@ int main(void) {
     // Flipper critical FURI HAL
     furi_hal_init_early();
 
+    //register rtt
+    segger_rtt_init();
+
     FuriThread* main_thread = furi_thread_alloc_ex("InitSrv", 1024, init_task, NULL);
     furi_thread_set_priority(main_thread, FuriThreadPriorityInit);
 
@@ -41,7 +45,7 @@ int main(void) {
     furi_delay_ms(100);
 
     //for debug
-    furi_delay_ms(5000);
+    //furi_delay_ms(5000);
 
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     if(boot_mode == FuriHalRtcBootModeDfu || !furi_hal_gpio_read(&gpio_button_left)) {

@@ -903,8 +903,9 @@ static void furi_hal_sd_present_pin_set_low(void) {
 }
 
 bool furi_hal_sd_is_present(void) {
-    bool result = !furi_hal_gpio_read(&gpio_sdcard_cd);
-    return result;
+    //bool result = !furi_hal_gpio_read(&gpio_sdcard_cd);
+    //return result;
+    return true;
 }
 
 uint8_t furi_hal_sd_max_mount_retry_count(void) {
